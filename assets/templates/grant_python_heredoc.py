@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""PreToolUse hook: auto-grant permission for python heredoc execution.
+"""PermissionRequest hook: auto-grant permission for python heredoc execution.
 
-Claude Code invokes this script before Bash tool calls. It receives a JSON
-object on stdin describing the tool call and can print a JSON decision to
-stdout:
+Claude Code invokes this script when a permission dialog appears for Bash
+tool calls. It receives a JSON object on stdin describing the tool call and
+can print a JSON decision to stdout:
 
-    {"decision": "allow"}   — skip the permission prompt
-    {"decision": "deny", "reason": "..."}  — block the call
-    (no output)             — fall through to normal permission flow
+    {"hookSpecificOutput": {"hookEventName": "PermissionRequest",
+     "decision": {"behavior": "allow"}}}   — skip the permission prompt
+    {"hookSpecificOutput": {"hookEventName": "PermissionRequest",
+     "decision": {"behavior": "deny", "message": "..."}}}  — block the call
+    (no output / exit 0)  — fall through to normal permission flow
 
 This hook matches Bash commands that use python/python3 with a heredoc
 (<<<), which Claude commonly uses to run inline Python snippets.
@@ -47,7 +49,15 @@ def main() -> None:
 
     if HEREDOC_PATTERN.match(command.strip()):
         decision = "allow"
-        json.dump({"decision": decision}, sys.stdout)
+        json.dump(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "PermissionRequest",
+                    "decision": {"behavior": "allow"},
+                }
+            },
+            sys.stdout,
+        )
     else:
         decision = "passthrough"
 
