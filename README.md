@@ -6,10 +6,10 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that scaf
 
 ```bash
 # 1. Clone
-git clone https://github.com/you/agent-python-skill.git ~/tools/agent-python-skill
+git clone https://github.com/you/claude-python-skill.git ~/tools/claude-python-skill
 
 # 2. Add to your Claude Code settings (~/.claude/settings.json)
-#    { "skills": ["~/tools/agent-python-skill"] }
+#    { "skills": ["~/tools/claude-python-skill"] }
 
 # 3. Use it
 /py:scaffold          # create a new Python project
@@ -72,7 +72,7 @@ Reports back: pass/fail summary, slowest 5 tests, and failure tracebacks.
 Clone and reference in your Claude Code settings:
 
 ```bash
-git clone https://github.com/you/agent-python-skill.git ~/tools/agent-python-skill
+git clone https://github.com/you/claude-python-skill.git ~/tools/claude-python-skill
 ```
 
 ### User-level (`~/.claude/settings.json`)
@@ -80,7 +80,7 @@ git clone https://github.com/you/agent-python-skill.git ~/tools/agent-python-ski
 ```json
 {
   "skills": [
-    "~/tools/agent-python-skill"
+    "~/tools/claude-python-skill"
   ]
 }
 ```
@@ -90,7 +90,7 @@ git clone https://github.com/you/agent-python-skill.git ~/tools/agent-python-ski
 ```json
 {
   "skills": [
-    "~/tools/agent-python-skill"
+    "~/tools/claude-python-skill"
   ]
 }
 ```

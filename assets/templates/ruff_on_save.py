@@ -47,9 +47,7 @@ def main() -> None:
     else:
         cmd = ["uv", "run", "ruff", "format", file_path]
 
-    result = subprocess.run(
-        cmd, capture_output=True, timeout=10
-    )
+    result = subprocess.run(cmd, capture_output=True, timeout=10)
     decision = "formatted" if result.returncode == 0 else "error"
     log(payload, decision)
 

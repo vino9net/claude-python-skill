@@ -1,4 +1,4 @@
-# Agent Python Skill (Plugin: `py`)
+# Claude Python Skill (Plugin: `py`)
 
 A Claude Code plugin for scaffolding Python projects, enforcing quality standards, and running tests.
 
