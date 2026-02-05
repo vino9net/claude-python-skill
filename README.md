@@ -4,9 +4,19 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that scaf
 
 ## TL;DR
 
+Install from the marketplace:
+
+1. Run `claude` to start Claude Code
+2. Type `/plugins` to open the plugin manager
+3. Navigate to **Marketplaces** → **Add Marketplace**
+4. Enter `vino9net/vino9-claude-marketplace` as the source
+5. Browse and enable the **python-dev** plugin
+
+Or install manually:
+
 ```bash
 # 1. Clone
-git clone https://github.com/you/claude-python-skill.git ~/tools/claude-python-skill
+git clone https://github.com/vino9net/claude-python-skill.git ~/tools/claude-python-skill
 
 # 2. Add to your Claude Code settings (~/.claude/settings.json)
 #    { "skills": ["~/tools/claude-python-skill"] }
