@@ -1,28 +1,78 @@
-# python-dev
+# py — Python Development Plugin for Claude Code
 
-A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that scaffolds Python projects, adds components, and enforces development standards.
+A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that scaffolds Python projects, enforces quality standards, and runs tests.
 
-## What It Does
+## TL;DR
 
-- Generates new Python projects with a standard `src/` layout, CI, Docker, and tooling pre-configured
-- Adds components to existing projects: **ORM** (SQLAlchemy), **API** (FastAPI), **CLI** (Typer), **Redis**
-- Manages dependencies from a curated version master list
-- Supports packaging as a distributable library or standalone application
-- Enforces coding standards during development: **ruff** (lint/format), **ty** (type checking), **pytest** (testing)
-- Defines a pre-commit quality gate workflow (format → lint → type check → test)
+```bash
+# 1. Clone
+git clone https://github.com/you/agent-python-skill.git ~/tools/agent-python-skill
+
+# 2. Add to your Claude Code settings (~/.claude/settings.json)
+#    { "skills": ["~/tools/agent-python-skill"] }
+
+# 3. Use it
+/py:scaffold          # create a new Python project
+/py:pytest            # run tests before committing
+                      # quality standards apply automatically
+```
+
+## Skills
+
+| Skill | Command | Invocation |
+|-------|---------|------------|
+| **scaffold** | `/py:scaffold` | User types the command |
+| **quality** | — | Claude auto-invokes when writing Python |
+| **pytest** | `/py:pytest` | User types the command |
+
+### `/py:scaffold`
+
+Generates new Python projects with a standard `src/` layout, CI, Docker, and tooling pre-configured. Adds components to existing projects.
+
+Available components:
+
+| Component | Stack | What Gets Added |
+|-----------|-------|-----------------|
+| **orm** | SQLAlchemy 2 + Alembic | `db/`, `alembic/`, DB fixtures |
+| **api** | FastAPI + Uvicorn | `api/`, health check, test client |
+| **cli** | Typer + Rich | `cli.py`, pyproject script entry |
+| **redis** | redis-py | `cache/`, fakeredis fixtures |
+
+Claude walks you through a short interview (2 rounds max), then generates the project.
+
+### `quality` (auto-invoked)
+
+Activates when writing, reviewing, or committing Python code:
+
+- **Line length**: 88 chars target (92 hard limit enforced by ruff)
+- **Type annotations**: modern syntax (`str | None`, not `Optional[str]`)
+- **Pre-commit gates**: ruff format → ruff check → ty check → pytest
+
+### Project Hooks (via scaffold)
+
+Scaffolded projects include these hooks in `.claude/scripts/`, customizable per project:
+
+| Hook | Event | What it does |
+|------|-------|--------------|
+| `ruff_on_save.py` | PostToolUse (Edit/Write) | Auto-runs `ruff format` on `.py` files |
+| `grant_python_heredoc.py` | PreToolUse (Bash) | Auto-grants `python <<<` heredoc commands |
+
+### `/py:pytest`
+
+Runs the test suite in an isolated subagent (keeps your main context clean):
+
+```
+uv run pytest -v --durations=5 --timeout=180
+```
+
+Reports back: pass/fail summary, slowest 5 tests, and failure tracebacks.
 
 ## Installation
 
-Add this skill to your Claude Code project or user settings:
+Clone and reference in your Claude Code settings:
 
-### Project-level (`.claude/settings.json`)
-
-```json
-{
-  "skills": [
-    "/path/to/agent-python-skill"
-  ]
-}
+```bash
+git clone https://github.com/you/agent-python-skill.git ~/tools/agent-python-skill
 ```
 
 ### User-level (`~/.claude/settings.json`)
@@ -30,49 +80,19 @@ Add this skill to your Claude Code project or user settings:
 ```json
 {
   "skills": [
-    "/path/to/agent-python-skill"
+    "~/tools/agent-python-skill"
   ]
 }
 ```
 
-Replace `/path/to/agent-python-skill` with the absolute path to this directory.
+### Project-level (`.claude/settings.json`)
 
-## Usage
-
-Once installed, the skill activates in two contexts:
-
-### Scaffolding a project
-
-```
-> new python project
-> scaffold a python api
-> add ORM to this project
-> add CLI to this project
-> create project skeleton
-> update project dependencies
-```
-
-Claude will walk you through a short interview:
-
-1. **Round 1** — Project name, description, and which components you need
-2. **Round 2** — Follow-up questions based on your choices (DB backend, middleware, distribution type, etc.)
-
-After you confirm, it generates the full project structure.
-
-### During development
-
-The skill also activates when writing, reviewing, or committing Python code. It enforces:
-
-- Modern type annotations (`str | None`, not `Optional[str]`)
-- PEP8 conventions and import organization
-- A pre-commit checklist before every commit:
-
-```
-1. ruff format .
-2. ruff check . --fix
-3. ruff check .
-4. ty check
-5. pytest
+```json
+{
+  "skills": [
+    "~/tools/agent-python-skill"
+  ]
+}
 ```
 
 ## Generated Project Structure
@@ -81,6 +101,7 @@ The skill also activates when writing, reviewing, or committing Python code. It 
 my_project/
 ├── pyproject.toml
 ├── README.md
+├── CLAUDE.md
 ├── .python-version
 ├── .pre-commit-config.yaml
 ├── .gitignore
@@ -88,7 +109,8 @@ my_project/
 │   ├── settings.json
 │   └── scripts/
 │       ├── init_remote_env.sh
-│       └── grant_python_heredoc.py
+│       ├── grant_python_heredoc.py
+│       └── ruff_on_save.py
 ├── .vscode/
 │   └── settings.json
 ├── .github/workflows/python_build.yml
@@ -102,16 +124,7 @@ my_project/
 └── docker/Dockerfile
 ```
 
-Components add more directories (e.g. `db/`, `api/`, `cli.py`, `worker/`, `cache/`) as needed.
-
-## Available Components
-
-| Component | Stack | What Gets Added |
-|-----------|-------|-----------------|
-| **orm** | SQLAlchemy 2 + Alembic | `db/`, `alembic/`, DB fixtures |
-| **api** | FastAPI + Uvicorn | `api/`, health check, test client |
-| **cli** | Typer + Rich | `cli.py`, pyproject script entry |
-| **redis** | redis-py | `cache/`, fakeredis fixtures |
+Components add more directories (e.g. `db/`, `api/`, `cli.py`, `cache/`) as needed.
 
 ## Conventions
 
@@ -120,6 +133,7 @@ Components add more directories (e.g. `db/`, `api/`, `cli.py`, `worker/`, `cache
 | Package manager | `uv` |
 | Layout | `src/{name}/` |
 | Python | 3.13+ |
+| Line length | 88 chars (92 hard limit) |
 | Linting | ruff (lint + format) + ty |
 | Testing | pytest, pytest-asyncio |
 | Config | pydantic-settings |

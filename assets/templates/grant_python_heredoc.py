@@ -20,13 +20,18 @@ import sys
 from datetime import datetime, timezone
 
 HEREDOC_PATTERN = re.compile(r"^(uv run )?(python3?)\s+<<<")
-LOG_FILE = os.path.expanduser("~/tmp/python_heredoc.log")
+LOG_FILE = os.path.expanduser("~/tmp/pyhooks.log")
 
 
 def log(payload: dict, decision: str) -> None:
     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
     timestamp = datetime.now(timezone.utc).isoformat()
-    entry = {"timestamp": timestamp, "request": payload, "decision": decision}
+    entry = {
+        "timestamp": timestamp,
+        "hook": "grant_python_heredoc",
+        "request": payload,
+        "decision": decision,
+    }
     with open(LOG_FILE, "a") as f:
         f.write(json.dumps(entry) + "\n")
 

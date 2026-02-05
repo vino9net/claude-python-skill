@@ -14,6 +14,8 @@ filterwarnings = [
     "ignore::DeprecationWarning",
 ]
 env_files = [".env"]
+timeout = 180
+timeout_method = "signal"
 ```
 
 ## coverage

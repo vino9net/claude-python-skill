@@ -1,15 +1,14 @@
 ---
-name: python-dev
+name: scaffold
 description: >
-  Scaffold new Python projects, add components, and enforce development standards.
+  Scaffold new Python projects or add components to existing ones.
   Triggers: "new python project", "scaffold", "add ORM/API/CLI to project", "init project",
   "create project skeleton", "update project dependencies". Also use when asked to add
   SQLAlchemy, FastAPI, Redis, or other components to an existing Python project.
-  Also applies when writing Python code, reviewing code quality, or preparing commits.
-allowed-tools: Bash(ruff*), Bash(ty*), Bash(uv*), Bash(pytest*), Read, Grep, Edit
+allowed-tools: Bash(uv*), Read, Grep, Edit
 ---
 
-# Python Project Scaffold & Development Standards
+# Python Project Scaffold
 
 ## Quick Start
 
@@ -75,6 +74,7 @@ Only after confirmation: read the relevant snippet files and generate the projec
 {project_name}/
 ├── pyproject.toml
 ├── README.md
+├── CLAUDE.md
 ├── .python-version
 ├── .pre-commit-config.yaml
 ├── .gitignore
@@ -82,7 +82,8 @@ Only after confirmation: read the relevant snippet files and generate the projec
 │   ├── settings.json        # skill reference + tool permissions
 │   └── scripts/
 │       ├── init_remote_env.sh
-│       └── grant_python_heredoc.py
+│       ├── grant_python_heredoc.py
+│       └── ruff_on_save.py
 ├── .vscode/
 │   └── settings.json        # editor defaults for Python + ruff
 ├── .github/
@@ -105,6 +106,7 @@ Only after confirmation: read the relevant snippet files and generate the projec
 
 Always copy these templates from `assets/templates/` into the scaffolded project:
 
+- `CLAUDE.md` → `CLAUDE.md` (replace `{project_name}` and `{description}` placeholders)
 - `.gitignore` → `.gitignore`
 - `.pre-commit-config.yaml` → `.pre-commit-config.yaml`
 - `vscode-settings.json` → `.vscode/settings.json`
@@ -112,6 +114,7 @@ Always copy these templates from `assets/templates/` into the scaffolded project
 - `settings.json` → `.claude/settings.json`
 - `init_remote_env.sh` → `.claude/scripts/init_remote_env.sh`
 - `grant_python_heredoc.py` → `.claude/scripts/grant_python_heredoc.py`
+- `ruff_on_save.py` → `.claude/scripts/ruff_on_save.py`
 
 Ensure the scripts are executable (`chmod +x`).
 
@@ -159,90 +162,3 @@ truth for approved versions. When generating pyproject.toml:
 
 When the user asks to make the project installable or distributable as a package, read
 `references/packaging.md` for the standard pyproject.toml sections to add.
-
----
-
-# Development Standards
-
-This section governs day-to-day Python development: coding style, linting, type checking,
-testing, and commit workflow.
-
-## Core Principles
-
-1. **Format and lint ONLY before commits** — not during normal code changes
-2. **Detect Python version** from `.python-version` file in project root
-3. **Use standardized tools** — ruff, ty, uv (no alternatives)
-4. **Modern type annotations** — Python 3.10+ syntax
-
-## During Development
-
-- Write code following PEP8 conventions
-- Use modern type annotation syntax (see below)
-- Keep imports at the top of the file
-- Keep line length reasonable (ruff enforces this later)
-- **DO NOT run linting/formatting** — save it for the pre-commit step
-
-## Pre-Commit Quality Gates
-
-When preparing to commit, run these checks in order. Only commit if ALL pass.
-
-```
-1. ruff format .
-2. ruff check . --fix
-3. ruff check .
-4. ty check
-5. pytest
-6. Commit
-```
-
-### After Failed Checks
-
-- Read error messages carefully
-- Fix issues one at a time
-- Re-run the specific check that failed
-- Continue through the checklist
-
-## Type Annotations (Python 3.10+)
-
-Use modern syntax — do not import from `typing` for built-in generics.
-
-```python
-# Correct
-def process(data: str | None) -> list[dict[str, int]]:
-    items: set[str] = set()
-    return []
-
-# Incorrect
-from typing import Optional, List, Dict, Set
-def process(data: Optional[str]) -> List[Dict[str, int]]:
-    items: Set[str] = set()
-    return []
-```
-
-Remove unused `typing` imports when converting to modern syntax.
-
-## Import Organization
-
-- Standard library imports first
-- Third-party imports second
-- Local imports last
-- Alphabetically sorted within each group
-- Always at top of file
-
-## Package Management with uv
-
-```bash
-uv add <package>       # add a dependency
-uv sync                # sync lockfile to environment
-uv run <command>       # run inside the virtual environment
-uv run pytest          # example: run tests
-```
-
-## Tools Reference
-
-| Tool | Commands |
-|------|----------|
-| **ruff** | `ruff format .` · `ruff check .` · `ruff check . --fix` |
-| **ty** | `ty check` · `ty check <file>` |
-| **uv** | `uv add <pkg>` · `uv sync` · `uv run <cmd>` |
-| **pytest** | `pytest` · `pytest tests/test_file.py` · `pytest -v` |
