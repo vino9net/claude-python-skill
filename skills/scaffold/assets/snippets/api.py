@@ -58,26 +58,6 @@ async def health_check() -> dict[str, str]:
     return {"status": "ok"}
 ```
 
-## src/{project_name}/api/deps.py (when combined with ORM)
-
-```python
-from collections.abc import AsyncGenerator
-
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from {project_name}.db.session import get_session
-
-
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async for session in get_session():
-        yield session
-
-
-# Usage in route:
-#   async def get_items(db: AsyncSession = Depends(get_db)):
-```
-
 ## config.py additions
 
 ```python
@@ -117,6 +97,5 @@ src/{project_name}/
 └── api/
     ├── __init__.py
     ├── router.py
-    ├── health.py
-    └── deps.py          # only if ORM component also active
+    └── health.py
 ```

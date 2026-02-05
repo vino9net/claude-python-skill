@@ -37,13 +37,12 @@ git clone https://github.com/vino9net/claude-python-skill.git ~/tools/claude-pyt
 
 ### `/py:scaffold`
 
-Generates new Python projects with a standard `src/` layout, CI, Docker, and tooling pre-configured. Adds components to existing projects.
+Generates new Python projects with a standard `src/` layout, CI, and tooling pre-configured. Adds components to existing projects.
 
 Available components:
 
 | Component | Stack | What Gets Added |
 |-----------|-------|-----------------|
-| **orm** | SQLAlchemy 2 + Alembic | `db/`, `alembic/`, DB fixtures |
 | **api** | FastAPI + Uvicorn | `api/`, health check, test client |
 | **cli** | Typer + Rich | `cli.py`, pyproject script entry |
 | **redis** | redis-py | `cache/`, fakeredis fixtures |
@@ -128,13 +127,12 @@ my_project/
 │   ├── __init__.py
 │   ├── py.typed
 │   └── config.py
-├── tests/
-│   ├── conftest.py
-│   └── test_config.py
-└── docker/Dockerfile
+└── tests/
+    ├── conftest.py
+    └── test_config.py
 ```
 
-Components add more directories (e.g. `db/`, `api/`, `cli.py`, `cache/`) as needed.
+Components add more directories (e.g. `api/`, `cli.py`, `cache/`) as needed.
 
 ## Conventions
 

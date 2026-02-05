@@ -19,28 +19,27 @@ This is a Claude Code plugin providing three skills:
 ├── .claude-plugin/
 │   └── plugin.json              # Plugin definition (name: "py")
 ├── skills/
-│   ├── scaffold/SKILL.md        # /py:scaffold — project scaffolding
+│   ├── scaffold/
+│   │   ├── SKILL.md             # /py:scaffold — project scaffolding
+│   │   ├── assets/
+│   │   │   ├── snippets/        # Code templates for each component
+│   │   │   │   ├── api.py       # FastAPI component patterns
+│   │   │   │   └── cli.py       # Typer CLI component patterns
+│   │   │   └── templates/       # Files copied into scaffolded projects
+│   │   │       ├── pyproject.toml   # → pyproject.toml (with tool configs)
+│   │   │       ├── CLAUDE.md        # → CLAUDE.md (project instructions)
+│   │   │       ├── .gitignore       # → .gitignore
+│   │   │       ├── .pre-commit-config.yaml  # → .pre-commit-config.yaml
+│   │   │       ├── vscode-settings.json     # → .vscode/settings.json
+│   │   │       ├── python_build.yml     # → .github/workflows/python_build.yml
+│   │   │       ├── settings.json        # → .claude/settings.json
+│   │   │       ├── init_remote_env.sh   # → .claude/scripts/init_remote_env.sh
+│   │   │       ├── grant_python_heredoc.py  # → .claude/scripts/grant_python_heredoc.py
+│   │   │       └── ruff_on_save.py      # → .claude/scripts/ruff_on_save.py
+│   │   └── references/
+│   │       └── dependencies.md  # Approved package version master list
 │   ├── quality/SKILL.md         # Auto-invoked quality standards
 │   └── pytest/SKILL.md          # /py:pytest — test runner (context: fork)
-├── assets/
-│   ├── snippets/                # Code templates for each component
-│   │   ├── api.py               # FastAPI component patterns
-│   │   ├── orm.py               # SQLAlchemy/Alembic component patterns
-│   │   └── cli.py               # Typer CLI component patterns
-│   └── templates/               # Files copied into scaffolded projects
-│       ├── CLAUDE.md            # → CLAUDE.md (project instructions)
-│       ├── .gitignore           # → .gitignore
-│       ├── .pre-commit-config.yaml  # → .pre-commit-config.yaml
-│       ├── vscode-settings.json     # → .vscode/settings.json
-│       ├── python_build.yml    # → .github/workflows/python_build.yml
-│       ├── settings.json       # → .claude/settings.json
-│       ├── init_remote_env.sh  # → .claude/scripts/init_remote_env.sh
-│       ├── grant_python_heredoc.py  # → .claude/scripts/grant_python_heredoc.py
-│       └── ruff_on_save.py     # → .claude/scripts/ruff_on_save.py
-└── references/                 # Canonical configs and dependency versions
-    ├── dependencies.md         # Approved package version master list
-    ├── packaging.md            # pyproject.toml packaging standards
-    └── tool-config.md          # pytest, ruff, coverage config
 ```
 
 ## How It Works

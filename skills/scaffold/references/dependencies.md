@@ -29,20 +29,13 @@ ty = ">=0.0.14"
 pre-commit = ">=4.0,<5"
 ```
 
-## ORM Component
-
-```
-sqlalchemy = ">=2.0.36,<3"
-alembic = ">=1.14,<2"
-asyncpg = ">=0.30,<1"
-factory-boy = ">=3.3,<4"        # dev only
-```
-
 ## API Component
 
 ```
 fastapi = ">=0.115,<1"
 uvicorn = {version = ">=0.32,<1", extras = ["standard"]}
+pydantic-settings = ">=2.7,<3",
+structlog = ">=24.4,<26",
 ```
 
 ## CLI Component

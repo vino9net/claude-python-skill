@@ -2,9 +2,9 @@
 name: scaffold
 description: >
   Scaffold new Python projects or add components to existing ones.
-  Triggers: "new python project", "scaffold", "add ORM/API/CLI to project", "init project",
+  Triggers: "new python project", "scaffold", "add API/CLI to project", "init project",
   "create project skeleton", "update project dependencies". Also use when asked to add
-  SQLAlchemy, FastAPI, Redis, or other components to an existing Python project.
+  FastAPI, Redis, or other components to an existing Python project.
 allowed-tools: Bash(uv*), Read, Grep, Edit
 ---
 
@@ -13,9 +13,10 @@ allowed-tools: Bash(uv*), Read, Grep, Edit
 ## Quick Start
 
 1. Read this file for workflow and conventions
-2. If generating code for a component, read the matching snippet from `assets/snippets/`
-3. If managing dependencies, read `references/dependencies.md` for the version master list
-4. If the user asks about packaging/distribution, read `references/packaging.md`
+2. **Do NOT search for files** — read template and snippet files directly by their exact paths listed below
+3. For components: read `assets/snippets/api.py` or `assets/snippets/cli.py` directly
+4. For dependencies: read `references/dependencies.md` directly
+5. For pyproject.toml reference: read `assets/templates/pyproject.toml` directly
 
 ## Scaffold Interview
 
@@ -27,7 +28,7 @@ Do not ask all questions at once — group them into 2 rounds maximum.
 ```
 Project name: {ask user, suggest snake_case}
 One-line description: {ask user}
-Components needed: [orm, api, cli, redis] — present as checklist, explain briefly
+Components needed: [api, cli, redis] — present as checklist, explain briefly
 ```
 
 ### Round 2 — Conditional (ask based on Round 1 answers)
@@ -36,9 +37,7 @@ Components needed: [orm, api, cli, redis] — present as checklist, explain brie
 |----------------------------|----------------------------------------------------------------|
 | Always                     | "Is this a distributable library (pip install) or an app?"     |
 | If library                 | "Do you need optional extras groups? (e.g. `pip install x[api]`)" |
-| If orm selected            | "Postgres (asyncpg) or SQLite (aiosqlite) for dev?"           |
 | If api selected            | "Do you need CORS and auth middleware out of the box?"         |
-| If api + orm both selected | "Should API routes get a DB session via dependency injection?" |
 
 ### After interview
 
@@ -48,10 +47,9 @@ generating any files. Example:
 ```
 Project:      fund_parser
 Type:         Library (pip installable with extras)
-Components:   orm, api, cli
-ORM backend:  asyncpg (Postgres)
+Components:   api, cli
 API extras:   CORS enabled, no auth
-Distribution: pip install fund_parser[api,orm]
+Distribution: pip install fund_parser[api]
 
 Proceed? (y/n)
 ```
@@ -94,29 +92,30 @@ Only after confirmation: read the relevant snippet files and generate the projec
 │       ├── __init__.py
 │       ├── py.typed          # PEP 561 marker
 │       └── config.py         # pydantic-settings based
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   └── test_config.py
-└── docker/
-    └── Dockerfile
+└── tests/
+    ├── __init__.py
+    ├── conftest.py
+    └── test_config.py
 ```
 
 ## Scaffold Templates
 
-Always copy these templates from `assets/templates/` into the scaffolded project:
+**Do NOT search for templates.** Read each template file directly by its exact path and copy to the target project.
 
-- `CLAUDE.md` → `CLAUDE.md` (replace `{project_name}` and `{description}` placeholders)
-- `.gitignore` → `.gitignore`
-- `.pre-commit-config.yaml` → `.pre-commit-config.yaml`
-- `vscode-settings.json` → `.vscode/settings.json`
-- `python_build.yml` → `.github/workflows/python_build.yml`
-- `settings.json` → `.claude/settings.json`
-- `init_remote_env.sh` → `.claude/scripts/init_remote_env.sh`
-- `grant_python_heredoc.py` → `.claude/scripts/grant_python_heredoc.py`
-- `ruff_on_save.py` → `.claude/scripts/ruff_on_save.py`
+| Template File (read from)                        | Target Location                        | Replacements                                           |
+|--------------------------------------------------|----------------------------------------|--------------------------------------------------------|
+| `assets/templates/pyproject.toml`                | `pyproject.toml`                       | `{project_name}`, `{description}`, `{python_version}`  |
+| `assets/templates/CLAUDE.md`                     | `CLAUDE.md`                            | `{project_name}`, `{description}`                      |
+| `assets/templates/.gitignore`                    | `.gitignore`                           | None                                                   |
+| `assets/templates/.pre-commit-config.yaml`       | `.pre-commit-config.yaml`              | None                                                   |
+| `assets/templates/vscode-settings.json`          | `.vscode/settings.json`                | None                                                   |
+| `assets/templates/python_build.yml`              | `.github/workflows/python_build.yml`   | None                                                   |
+| `assets/templates/settings.json`                 | `.claude/settings.json`                | None                                                   |
+| `assets/templates/init_remote_env.sh`            | `.claude/scripts/init_remote_env.sh`   | None (make executable)                                 |
+| `assets/templates/grant_python_heredoc.py`       | `.claude/scripts/grant_python_heredoc.py` | None (make executable)                              |
+| `assets/templates/ruff_on_save.py`               | `.claude/scripts/ruff_on_save.py`      | None (make executable)                                 |
 
-Ensure the scripts are executable (`chmod +x`).
+After copying scripts, run `chmod +x` on the `.sh` and `.py` files in `.claude/scripts/`.
 
 Skills are added as git submodules under `.claude/skills/`. If the project uses skills,
 add a `"skills"` key to the generated settings file.
@@ -128,16 +127,16 @@ When the user requests a component, follow these steps:
 1. Check if the project already exists (look for pyproject.toml)
 2. If existing: **merge** new dependencies and add only new files
 3. If new: generate base structure + requested components together
-4. Always read the matching snippet file from `assets/snippets/` before generating code
+4. Read the matching snippet file directly by path (do NOT search) before generating code
 
 ### Available Components
 
-| Component   | Snippet File                        | Adds To                          |
-|-------------|-------------------------------------|----------------------------------|
-| orm         | `assets/snippets/orm.py`            | db/, alembic/, conftest fixtures |
-| api         | `assets/snippets/api.py`            | api/, main.py, conftest fixtures |
-| cli         | `assets/snippets/cli.py`            | cli.py, pyproject scripts        |
-| redis       | `assets/snippets/redis_cache.py`    | cache/, conftest fixtures        |
+**Read these snippet files directly by path when the component is requested:**
+
+| Component | Read This File              | Creates                          |
+|-----------|-----------------------------|----------------------------------|
+| api       | `assets/snippets/api.py`    | api/, main.py, conftest fixtures |
+| cli       | `assets/snippets/cli.py`    | cli.py, pyproject scripts        |
 
 ### Adding to Existing Projects
 
@@ -147,7 +146,7 @@ When adding a component to an existing project:
   dependencies into existing `[project.dependencies]` — never overwrite existing ones.
 - **conftest.py**: Append new fixtures below existing ones. Do not reorder or remove existing
   fixtures. Preserve existing imports and add new ones at the top.
-- **config.py**: Add new Settings fields for the component (e.g., `DATABASE_URL` for orm).
+- **config.py**: Add new Settings fields for the component.
 
 ## Dependency Management
 
@@ -160,5 +159,11 @@ truth for approved versions. When generating pyproject.toml:
 
 ## Packaging / Distribution
 
-When the user asks to make the project installable or distributable as a package, read
-`references/packaging.md` for the standard pyproject.toml sections to add.
+When the user asks to make the project installable or distributable as a package, use
+`assets/templates/pyproject.toml` as the reference template for standard sections.
+
+## Docker
+
+Do NOT generate Dockerfiles, docker-compose files, or any Docker-related configuration.
+If the user asks for Docker support, explain that this scaffold does not include Docker
+and suggest they add it manually if needed.
