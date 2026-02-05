@@ -8,7 +8,7 @@ This is a Claude Code plugin providing three skills:
 
 | Skill | Command | Description |
 |-------|---------|-------------|
-| **scaffold** | `/py:scaffold` | Generate barebone Python projects |
+| **scaffold** | `/py:scaffold` | Generate new Python projects or add components |
 | **quality** | *(auto-invoked)* | Coding style, linting, type checking, line length |
 | **pytest** | `/py:pytest` | Run test suite in isolated subagent |
 
@@ -19,21 +19,37 @@ This is a Claude Code plugin providing three skills:
 ├── .claude-plugin/
 │   └── plugin.json              # Plugin definition (name: "py")
 ├── skills/
-│   ├── scaffold/SKILL.md        # /py:scaffold — project scaffolding (self-contained)
+│   ├── scaffold/SKILL.md        # /py:scaffold — project scaffolding
 │   ├── quality/SKILL.md         # Auto-invoked quality standards
 │   └── pytest/SKILL.md          # /py:pytest — test runner (context: fork)
-└── references/                  # Dependency versions, packaging & tool config
-    ├── dependencies.md          # Approved package version master list
-    ├── packaging.md             # pyproject.toml packaging standards
-    └── tool-config.md           # pytest, ruff, coverage config
+├── assets/
+│   ├── snippets/                # Code templates for each component
+│   │   ├── api.py               # FastAPI component patterns
+│   │   ├── orm.py               # SQLAlchemy/Alembic component patterns
+│   │   └── cli.py               # Typer CLI component patterns
+│   └── templates/               # Files copied into scaffolded projects
+│       ├── CLAUDE.md            # → CLAUDE.md (project instructions)
+│       ├── .gitignore           # → .gitignore
+│       ├── .pre-commit-config.yaml  # → .pre-commit-config.yaml
+│       ├── vscode-settings.json     # → .vscode/settings.json
+│       ├── python_build.yml    # → .github/workflows/python_build.yml
+│       ├── settings.json       # → .claude/settings.json
+│       ├── init_remote_env.sh  # → .claude/scripts/init_remote_env.sh
+│       ├── grant_python_heredoc.py  # → .claude/scripts/grant_python_heredoc.py
+│       └── ruff_on_save.py     # → .claude/scripts/ruff_on_save.py
+└── references/                 # Canonical configs and dependency versions
+    ├── dependencies.md         # Approved package version master list
+    ├── packaging.md            # pyproject.toml packaging standards
+    └── tool-config.md          # pytest, ruff, coverage config
 ```
 
 ## How It Works
 
 ### Scaffolding (`/py:scaffold`)
-- Asks for project name and description, then generates a complete project skeleton
-- All templates, dependency versions, and tool configs are inlined in the SKILL.md
-- No external file reads required — fully self-contained
+1. Conducts a short interview (2 rounds max) to gather project requirements
+2. Reads snippet files from `assets/snippets/` for requested components
+3. Reads `references/dependencies.md` for pinned dependency versions
+4. Generates the project structure with all requested components wired together
 
 ### Quality (auto-invoked)
 - Activates automatically when writing, reviewing, or committing Python code
@@ -43,7 +59,7 @@ This is a Claude Code plugin providing three skills:
 ### Hooks (project-level templates)
 Scaffolded projects get these hooks in `.claude/scripts/`, registered via `.claude/settings.json`:
 - **`ruff_on_save.py`** (PostToolUse) — auto-runs `ruff format` on `.py` files after Edit/Write
-- **`grant_python_heredoc.py`** (PermissionRequest) — auto-grants `python <<<` heredoc commands
+- **`grant_python_heredoc.py`** (PreToolUse) — auto-grants `python <<<` heredoc commands
 
 Users can customize these scripts per project as needed.
 
