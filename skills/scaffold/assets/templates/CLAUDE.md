@@ -20,6 +20,14 @@
 A PostToolUse hook automatically runs `ruff format` on any `.py` file after edits.
 You do not need to manually format files during development.
 
+## Testing
+
+- Write tests that verify **behavior**, not implementation details
+- Don't test getters, setters, constants, or trivial wiring
+- Each test should assert something that could actually break
+- Use realistic fixtures (e.g. actual tmux captures, not synthetic data)
+- If a test would still pass after deleting the code under test, it's useless
+
 ## Quality Gates (before commit)
 
 Run these in order — only commit if ALL pass:

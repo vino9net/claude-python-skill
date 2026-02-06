@@ -63,6 +63,14 @@ Remove unused `typing` imports when converting to modern syntax.
 - **DO NOT run linting/formatting** — a PostToolUse hook auto-formats `.py` files on save
 - Focus on correctness and readability
 
+## Testing
+
+- Write tests that verify **behavior**, not implementation details
+- Don't test getters, setters, constants, or trivial wiring
+- Each test should assert something that could actually break
+- Use realistic fixtures (e.g. actual tmux captures, not synthetic data)
+- If a test would still pass after deleting the code under test, it's useless
+
 ## Pre-Commit Quality Gates
 
 When preparing to commit, run these checks in order. Only commit if ALL pass.
