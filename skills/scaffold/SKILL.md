@@ -4,7 +4,7 @@ description: >
   Scaffold new Python projects or add components to existing ones.
   Triggers: "new python project", "scaffold", "add API/CLI to project", "init project",
   "create project skeleton", "update project dependencies". Also use when asked to add
-  FastAPI, Redis, or other components to an existing Python project.
+  FastAPI or other components to an existing Python project.
 allowed-tools: Bash(uv*), Read, Grep, Edit
 ---
 
@@ -28,16 +28,8 @@ Do not ask all questions at once — group them into 2 rounds maximum.
 ```
 Project name: {ask user, suggest snake_case}
 One-line description: {ask user}
-Components needed: [api, cli, redis] — present as checklist, explain briefly
+Components needed: [api, cli] — present as checklist, explain briefly
 ```
-
-### Round 2 — Conditional (ask based on Round 1 answers)
-
-| Condition                  | Ask                                                            |
-|----------------------------|----------------------------------------------------------------|
-| Always                     | "Is this a distributable library (pip install) or an app?"     |
-| If library                 | "Do you need optional extras groups? (e.g. `pip install x[api]`)" |
-| If api selected            | "Do you need CORS and auth middleware out of the box?"         |
 
 ### After interview
 

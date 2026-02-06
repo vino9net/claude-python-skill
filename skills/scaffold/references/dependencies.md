@@ -44,10 +44,3 @@ structlog = ">=24.4,<26",
 typer = ">=0.15,<1"
 rich = ">=13.9,<14"
 ```
-
-## Redis Component
-
-```
-redis = ">=5.2,<6"
-fakeredis = ">=2.26,<3"         # dev only
-```
