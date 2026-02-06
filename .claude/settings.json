@@ -12,6 +12,7 @@
       "Bash(rg:*)",
       "Bash(grep:*)",
       "Bash(find:*)",
+      "Bash(tree:*)",
       "Bash(git add:*)",
       "Bash(git log:*)",
       "Bash(git mv:*)",
