@@ -109,8 +109,15 @@ Only after confirmation: read the relevant snippet files and generate the projec
 
 After copying scripts, run `chmod +x` on the `.sh` and `.py` files in `.claude/scripts/`.
 
-Skills are added as git submodules under `.claude/skills/`. If the project uses skills,
-add a `"skills"` key to the generated settings file.
+## Post-Scaffold Instructions
+
+After all files are generated, tell the user to run these commands to finish setup:
+
+```
+cd {project_name}
+uv sync
+uv run pre-commit install
+```
 
 ## Component System
 
