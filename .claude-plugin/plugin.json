@@ -1,5 +1,5 @@
 {
   "name": "py",
   "description": "Python project scaffolding, quality standards, and test runner for coding agents, e.g. Claude Code",
-  "version": "1.0.0"
+  "version": "1.0.2"
 }
