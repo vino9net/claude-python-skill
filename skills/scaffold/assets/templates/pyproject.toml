@@ -18,6 +18,8 @@ dev = [
     "ruff>=0.14.10",
     "ty>=0.0.14",
     "pytest-timeout>=2.4.0",
+    "pytest-xdist>=3.5.0",
+    "deptry>=0.24.0",
 ]
 
 [build-system]
@@ -69,14 +71,20 @@ select = [
     "C",
     "I",
     "A",
-] # Enable checks for PEP8, imports, and other standard rules
-ignore = ["E203", "E266", "C901"]
+    "B",
+    "S",
+    "UP",
+] # Enable checks for PEP8, imports, bugbear, security, and pyupgrade rules
+ignore = ["E203", "E266", "S101"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
 
 [tool.ty]
 
 [tool.ty.src]
 include = [
-    "filing_tool",
+    "{project_name}",
     "scripts",
     "tests"
 ]

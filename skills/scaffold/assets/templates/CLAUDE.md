@@ -36,6 +36,7 @@ Run these in order — only commit if ALL pass:
 1. ruff format .
 2. ruff check . --fix
 3. ruff check .
-4. ty check
-5. pytest -v --timeout=180
+4. deptry .
+5. ty check
+6. pytest -v --timeout=180
 ```

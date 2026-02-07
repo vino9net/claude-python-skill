@@ -53,7 +53,7 @@ Only after confirmation: read the relevant snippet files and generate the projec
 - **Package manager**: `uv` (pyproject.toml based, no setup.py, no requirements.txt). Never ask the user which package manager to use — always use `uv`.
 - **Layout**: src layout — `src/{project_name}/`
 - **Tests**: `tests/` mirroring src structure, pytest
-- **Linting**: ruff (lint + format), ty for type checking
+- **Linting**: ruff (lint + format), ty for type checking, deptry for dependency checks
 - **Pre-commit**: always include `.pre-commit-config.yaml`
 - **Python version**: 3.13+ unless user specifies otherwise
 - **Docstrings**: Google style

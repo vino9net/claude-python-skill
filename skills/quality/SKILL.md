@@ -5,7 +5,7 @@ description: >
   or committing Python code. Enforces coding style, line length, type
   annotations, linting (ruff), type checking (ty), and testing (pytest).
 user-invocable: false
-allowed-tools: Bash(ruff*), Bash(ty*), Bash(uv*), Bash(pytest*), Read, Grep, Edit
+allowed-tools: Bash(ruff*), Bash(ty*), Bash(uv*), Bash(pytest*), Bash(deptry*), Read, Grep, Edit
 ---
 
 # Python Quality Standards
@@ -79,9 +79,10 @@ When preparing to commit, run these checks in order. Only commit if ALL pass.
 1. ruff format .
 2. ruff check . --fix
 3. ruff check .
-4. ty check
-5. pytest -v --timeout=180
-6. Commit
+4. deptry .
+5. ty check
+6. pytest -v --timeout=180
+7. Commit
 ```
 
 ### After Failed Checks
@@ -105,6 +106,7 @@ uv run pytest          # example: run tests
 | Tool | Commands |
 |------|----------|
 | **ruff** | `ruff format .` · `ruff check .` · `ruff check . --fix` |
+| **deptry** | `deptry .` — find unused, missing, and transitive dependencies |
 | **ty** | `ty check` · `ty check <file>` |
 | **uv** | `uv add <pkg>` · `uv sync` · `uv run <cmd>` |
 | **pytest** | `pytest` · `pytest tests/test_file.py` · `pytest -v` |
