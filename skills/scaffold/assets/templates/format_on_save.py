@@ -16,11 +16,13 @@ LOG_FILE = os.path.expanduser("~/tmp/pyhooks.log")
 
 
 def log(payload: dict, decision: str) -> None:
+    if os.environ.get("LOG_CLAUDE_HOOK") != "1":
+        return
     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
     timestamp = datetime.now(timezone.utc).isoformat()
     entry = {
         "timestamp": timestamp,
-        "hook": "ruff_on_save",
+        "hook": "format_on_save",
         "request": payload,
         "decision": decision,
     }

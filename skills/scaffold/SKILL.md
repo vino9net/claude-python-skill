@@ -73,7 +73,7 @@ Only after confirmation: read the relevant snippet files and generate the projec
 │   └── scripts/
 │       ├── init_remote_env.sh
 │       ├── permission_guard.py
-│       └── ruff_on_save.py
+│       └── format_on_save.py
 ├── .vscode/
 │   └── settings.json        # editor defaults for Python + ruff
 ├── .github/
@@ -105,7 +105,7 @@ Only after confirmation: read the relevant snippet files and generate the projec
 | `assets/templates/settings.json`                 | `.claude/settings.json`                | None                                                   |
 | `assets/templates/init_remote_env.sh`            | `.claude/scripts/init_remote_env.sh`   | None (make executable)                                 |
 | `assets/templates/permission_guard.py`       | `.claude/scripts/permission_guard.py` | None (make executable)                              |
-| `assets/templates/ruff_on_save.py`               | `.claude/scripts/ruff_on_save.py`      | None (make executable)                                 |
+| `assets/templates/format_on_save.py`             | `.claude/scripts/format_on_save.py`    | None (make executable)                                 |
 
 After copying scripts, run `chmod +x` on the `.sh` and `.py` files in `.claude/scripts/`.
 
