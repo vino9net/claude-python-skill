@@ -71,6 +71,43 @@ Remove unused `typing` imports when converting to modern syntax.
 - Use realistic fixtures (e.g. actual tmux captures, not synthetic data)
 - If a test would still pass after deleting the code under test, it's useless
 
+## Commit Messages
+
+Use **Conventional Commits** format. Every commit subject must start with a type prefix.
+
+```
+type: short imperative description
+```
+
+### Required Prefixes
+
+| Prefix | Use for |
+|--------|---------|
+| `feat:` | New features or functionality |
+| `fix:` | Bug fixes |
+| `chore:` | Maintenance, deps, config, CI |
+| `refactor:` | Code changes that don't fix bugs or add features |
+| `test:` | Adding or updating tests |
+| `docs:` | Documentation only |
+
+### Rules
+
+- **Subject line max 50 characters** (including prefix)
+- Use imperative mood: "add login" not "added login"
+- No period at the end of the subject
+- Scope is optional: `feat(auth): add token refresh` is fine, `feat: add token refresh` is also fine
+- Add a body separated by a blank line when the change isn't self-explanatory
+- Body should explain **why**, not what
+
+### Example
+
+```
+fix: handle null user in session check
+
+The middleware assumed user was always set after auth,
+but expired tokens produce a null user object.
+```
+
 ## Pre-Commit Quality Gates
 
 When preparing to commit, run these checks in order. Only commit if ALL pass.

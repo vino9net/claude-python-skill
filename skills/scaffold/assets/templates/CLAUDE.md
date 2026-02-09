@@ -20,6 +20,14 @@
 A PostToolUse hook automatically runs `ruff format` on any `.py` file after edits.
 You do not need to manually format files during development.
 
+## Commit Messages
+
+Use Conventional Commits: `feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`.
+
+- Subject line max 50 characters (including prefix), imperative mood, no trailing period
+- Scope is optional: `feat(auth): add token refresh` or `feat: add token refresh`
+- Add a body (blank line after subject) when the change isn't self-explanatory
+
 ## Testing
 
 - Write tests that verify **behavior**, not implementation details
