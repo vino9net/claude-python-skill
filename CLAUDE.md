@@ -34,7 +34,7 @@ This is a Claude Code plugin providing three skills:
 │   │   │       ├── python_build.yml     # → .github/workflows/python_build.yml
 │   │   │       ├── settings.json        # → .claude/settings.json
 │   │   │       ├── init_remote_env.sh   # → .claude/scripts/init_remote_env.sh
-│   │   │       ├── grant_python_heredoc.py  # → .claude/scripts/grant_python_heredoc.py
+│   │   │       ├── permission_guard.py  # → .claude/scripts/permission_guard.py
 │   │   │       └── ruff_on_save.py      # → .claude/scripts/ruff_on_save.py
 │   │   └── references/
 │   │       └── dependencies.md  # Approved package version master list
@@ -58,7 +58,7 @@ This is a Claude Code plugin providing three skills:
 ### Hooks (project-level templates)
 Scaffolded projects get these hooks in `.claude/scripts/`, registered via `.claude/settings.json`:
 - **`ruff_on_save.py`** (PostToolUse) — auto-runs `ruff format` on `.py` files after Edit/Write
-- **`grant_python_heredoc.py`** (PreToolUse) — auto-grants `python <<<` heredoc commands
+- **`permission_guard.py`** (PermissionRequest) — auto-grants `python <<<` heredoc commands, blocks `git push` to protected branches
 
 Users can customize these scripts per project as needed.
 

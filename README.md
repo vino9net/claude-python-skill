@@ -64,7 +64,7 @@ Scaffolded projects include these hooks in `.claude/scripts/`, customizable per 
 | Hook | Event | What it does |
 |------|-------|--------------|
 | `ruff_on_save.py` | PostToolUse (Edit/Write) | Auto-runs `ruff format` on `.py` files |
-| `grant_python_heredoc.py` | PreToolUse (Bash) | Auto-grants `python <<<` heredoc commands |
+| `permission_guard.py` | PermissionRequest (Bash) | Auto-grants `python <<<` heredocs, blocks push to protected branches |
 
 ### `/py:pytest`
 
@@ -118,7 +118,7 @@ my_project/
 │   ├── settings.json
 │   └── scripts/
 │       ├── init_remote_env.sh
-│       ├── grant_python_heredoc.py
+│       ├── permission_guard.py
 │       └── ruff_on_save.py
 ├── .vscode/
 │   └── settings.json

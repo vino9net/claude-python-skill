@@ -72,7 +72,7 @@ Only after confirmation: read the relevant snippet files and generate the projec
 │   ├── settings.json        # skill reference + tool permissions
 │   └── scripts/
 │       ├── init_remote_env.sh
-│       ├── grant_python_heredoc.py
+│       ├── permission_guard.py
 │       └── ruff_on_save.py
 ├── .vscode/
 │   └── settings.json        # editor defaults for Python + ruff
@@ -104,7 +104,7 @@ Only after confirmation: read the relevant snippet files and generate the projec
 | `assets/templates/python_build.yml`              | `.github/workflows/python_build.yml`   | None                                                   |
 | `assets/templates/settings.json`                 | `.claude/settings.json`                | None                                                   |
 | `assets/templates/init_remote_env.sh`            | `.claude/scripts/init_remote_env.sh`   | None (make executable)                                 |
-| `assets/templates/grant_python_heredoc.py`       | `.claude/scripts/grant_python_heredoc.py` | None (make executable)                              |
+| `assets/templates/permission_guard.py`       | `.claude/scripts/permission_guard.py` | None (make executable)                              |
 | `assets/templates/ruff_on_save.py`               | `.claude/scripts/ruff_on_save.py`      | None (make executable)                                 |
 
 After copying scripts, run `chmod +x` on the `.sh` and `.py` files in `.claude/scripts/`.
