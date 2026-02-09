@@ -47,13 +47,23 @@ GIT_PUSH_FLAGS_STANDALONE = {
     "--force-if-includes",
 }
 
-LOG_FILE = os.path.expanduser("~/tmp/pyhooks.log")
+def _resolve_log_path() -> str | None:
+    path = os.environ.get("CLAUDE_HOOK_LOG")
+    if not path:
+        return None
+    if path.startswith("~"):
+        return os.path.expanduser(path)
+    if not os.path.isabs(path):
+        root = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+        return os.path.join(root, path)
+    return path
 
 
 def log(payload: dict, decision: str) -> None:
-    if os.environ.get("LOG_CLAUDE_HOOK") != "1":
+    log_file = _resolve_log_path()
+    if not log_file:
         return
-    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
     timestamp = datetime.now(timezone.utc).isoformat()
     entry = {
         "timestamp": timestamp,
@@ -61,7 +71,7 @@ def log(payload: dict, decision: str) -> None:
         "request": payload,
         "decision": decision,
     }
-    with open(LOG_FILE, "a") as f:
+    with open(log_file, "a") as f:
         f.write(json.dumps(entry) + "\n")
 
 

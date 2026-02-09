@@ -25,6 +25,8 @@ _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
 sys.modules["format_on_save"] = _mod
 main = _mod.main
+_resolve_log_path = _mod._resolve_log_path
+log = _mod.log
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 
@@ -157,6 +159,50 @@ class TestInvalidInput(unittest.TestCase):
     def test_missing_file_path(self, mock_run):
         _run_main(json.dumps({"tool_input": {}}))
         mock_run.assert_not_called()
+
+
+class TestLogging(unittest.TestCase):
+    """CLAUDE_HOOK_LOG env var controls log path resolution."""
+
+    def test_unset_returns_none(self):
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertIsNone(_resolve_log_path())
+
+    def test_empty_returns_none(self):
+        with patch.dict("os.environ", {"CLAUDE_HOOK_LOG": ""}):
+            self.assertIsNone(_resolve_log_path())
+
+    def test_tilde_expands(self):
+        with patch.dict("os.environ", {"CLAUDE_HOOK_LOG": "~/tmp/hooks.log"}):
+            result = _resolve_log_path()
+            self.assertFalse(result.startswith("~"))
+            self.assertTrue(result.endswith("/tmp/hooks.log"))
+
+    def test_relative_uses_project_dir(self):
+        env = {"CLAUDE_HOOK_LOG": "logs/hook.log", "CLAUDE_PROJECT_DIR": "/proj"}
+        with patch.dict("os.environ", env, clear=True):
+            self.assertEqual(_resolve_log_path(), "/proj/logs/hook.log")
+
+    def test_relative_uses_cwd_without_project_dir(self):
+        env = {"CLAUDE_HOOK_LOG": "logs/hook.log"}
+        with patch.dict("os.environ", env, clear=True), patch(
+            "format_on_save.os.getcwd", return_value="/fallback"
+        ):
+            self.assertEqual(_resolve_log_path(), "/fallback/logs/hook.log")
+
+    def test_absolute_used_as_is(self):
+        with patch.dict(
+            "os.environ", {"CLAUDE_HOOK_LOG": "/absolute/path.log"}
+        ):
+            self.assertEqual(_resolve_log_path(), "/absolute/path.log")
+
+    def test_log_noop_when_unset(self):
+        """log() should not write anything when CLAUDE_HOOK_LOG is unset."""
+        with patch.dict("os.environ", {}, clear=True), patch(
+            "builtins.open"
+        ) as mock_open:
+            log({"tool_input": {}}, "skip")
+            mock_open.assert_not_called()
 
 
 if __name__ == "__main__":

@@ -62,6 +62,12 @@ Scaffolded projects get these hooks in `.claude/scripts/`, registered via `.clau
 
 Users can customize these scripts per project as needed.
 
+**After editing any `.py` file in `skills/scaffold/assets/templates/`, run the corresponding tests:**
+```
+python3 -m unittest skills/scaffold/tests/test_format_on_save.py -v
+python3 -m unittest skills/scaffold/tests/test_permission_guard.py -v
+```
+
 ### Pytest (`/py:pytest`)
 - Runs `pytest -v --durations=5 --timeout=180` in an isolated subagent
 - Reports pass/fail summary, slowest tests, and failure details

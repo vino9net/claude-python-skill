@@ -38,7 +38,7 @@ def _run_hook(stdin_text: str) -> subprocess.CompletedProcess[str]:
         capture_output=True,
         text=True,
         timeout=10,
-        env={**os.environ, "LOG_CLAUDE_HOOK": "0"},
+        env={k: v for k, v in os.environ.items() if k != "CLAUDE_HOOK_LOG"},
     )
 
 
