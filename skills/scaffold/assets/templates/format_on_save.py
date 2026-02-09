@@ -10,7 +10,8 @@ import os
 import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 
 def _resolve_log_path() -> str | None:
     path = os.environ.get("CLAUDE_HOOK_LOG")
@@ -29,7 +30,7 @@ def log(payload: dict, decision: str) -> None:
     if not log_file:
         return
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     entry = {
         "timestamp": timestamp,
         "hook": "format_on_save",
@@ -59,7 +60,7 @@ def main() -> None:
     else:
         cmd = ["uv", "run", "ruff", "format", file_path]
 
-    result = subprocess.run(cmd, capture_output=True, timeout=10)
+    result = subprocess.run(cmd, capture_output=True, timeout=10)  # noqa: S603
     decision = "formatted" if result.returncode == 0 else "error"
     log(payload, decision)
 
