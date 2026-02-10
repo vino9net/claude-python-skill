@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """PostToolUse hook: auto-format Python files after edit/write.
 
 Runs `ruff format` on any .py file that was edited or created by Claude,
@@ -10,7 +12,7 @@ import os
 import shutil
 import subprocess
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 
 def _resolve_log_path() -> str | None:
@@ -30,7 +32,7 @@ def log(payload: dict, decision: str) -> None:
     if not log_file:
         return
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    timestamp = datetime.now(UTC).isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
     entry = {
         "timestamp": timestamp,
         "hook": "format_on_save",
@@ -42,6 +44,9 @@ def log(payload: dict, decision: str) -> None:
 
 
 def main() -> None:
+    if os.environ.get("SKIP_CLAUDE_HOOKS") == "1":
+        return
+
     try:
         payload = json.load(sys.stdin)
     except (json.JSONDecodeError, EOFError):

@@ -66,13 +66,14 @@
       "Bash(git add:*)",
       "Bash(git log:*)",
       "Bash(git mv:*)",
+      "Bash(git status:*)",
       "Bash(git worktree:*)",
-      "Bash(git commit:*)"
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git reset:*)"
     ],
-    "ask": [
-      "Bash(pkill:*)",
-      "Bash(git push:*)"
-    ],
+    "ask": [],
     "deny": [],
     "defaultMode": "acceptEdits"
   },

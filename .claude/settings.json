@@ -14,16 +14,15 @@
       "Bash(find:*)",
       "Bash(tree:*)",
       "Bash(git add:*)",
+      "Bash(git commit:*)",
       "Bash(git log:*)",
       "Bash(git mv:*)",
+      "Bash(git status:*)",
       "Bash(git worktree:*)",
       "Bash(cat:*)",
-      "Read(/tmp/claude/*)",
-      "Bash(git commit:*)"
+      "Read(/tmp/claude/*)"
     ],
     "ask": [
-      "Bash(pkill:*)",
-      "Bash(git push:*)",
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

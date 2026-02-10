@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """PermissionRequest hook: auto-grant python heredocs, block pushes to protected branches.
 
 Claude Code invokes this script when a permission dialog appears for Bash
@@ -12,10 +14,13 @@ can print a JSON decision to stdout:
     (no output / exit 0)  — fall through to normal permission flow
 
 Decision flow:
-    command matches "python heredoc"? → allow
-    command matches "git push"?       → parse target branch
-                                        → deny if protected, else passthrough
-    otherwise                         → passthrough
+    command matches "python heredoc"?        → allow
+    command matches "git push"?              → parse target branch
+                                               → deny if protected, else passthrough
+    command matches "git commit"?            → check current branch
+                                               → passthrough (ask) if protected, else allow
+    command is "git -C <cwd> <safe_cmd>"?    → allow (equivalent to "git <safe_cmd>")
+    otherwise                                → passthrough
 """
 
 import json
@@ -30,22 +35,62 @@ HEREDOC_PATTERN = re.compile(r"^(uv run )?(python3?)\s+<<<")
 GIT_PUSH_PATTERN = re.compile(r"\bgit\b.*\bpush\b")
 PROTECTED_BRANCH_RE = re.compile(r"^(main|master)$")
 
+# git subcommands that are safe to auto-allow after stripping -C <cwd>
+GIT_SAFE_SUBCOMMANDS = {
+    "add",
+    "log",
+    "status",
+    "mv",
+    "worktree",
+    "diff",
+    "show",
+    "branch",
+    "reset",
+}
+
+GIT_COMMIT_PATTERN = re.compile(r"\bgit\b.*\bcommit\b")
+
 # Flags that consume the next argument
 GIT_PUSH_FLAGS_WITH_VALUE = {
-    "--push-option", "--repo", "--receive-pack", "--exec",
-    "-o", "--recurse-submodules",
+    "--push-option",
+    "--repo",
+    "--receive-pack",
+    "--exec",
+    "-o",
+    "--recurse-submodules",
 }
 
 # Flags that are standalone (no value)
 GIT_PUSH_FLAGS_STANDALONE = {
-    "-u", "--set-upstream", "-f", "--force", "--force-with-lease",
-    "--no-verify", "--tags", "--all", "--mirror", "--delete",
-    "--dry-run", "-n", "--verbose", "-v", "--quiet", "-q",
-    "--prune", "--porcelain", "--no-thin", "--thin",
-    "--follow-tags", "--signed", "--no-signed",
-    "--atomic", "--progress", "--no-progress",
+    "-u",
+    "--set-upstream",
+    "-f",
+    "--force",
+    "--force-with-lease",
+    "--no-verify",
+    "--tags",
+    "--all",
+    "--mirror",
+    "--delete",
+    "--dry-run",
+    "-n",
+    "--verbose",
+    "-v",
+    "--quiet",
+    "-q",
+    "--prune",
+    "--porcelain",
+    "--no-thin",
+    "--thin",
+    "--follow-tags",
+    "--signed",
+    "--no-signed",
+    "--atomic",
+    "--progress",
+    "--no-progress",
     "--force-if-includes",
 }
+
 
 def _resolve_log_path() -> str | None:
     path = os.environ.get("CLAUDE_HOOK_LOG")
@@ -169,7 +214,84 @@ def _resolve_push_branch(command: str) -> str | None:
     return None
 
 
+def _current_branch(command: str, cwd: str) -> str | None:
+    """Resolve the current git branch for a command.
+
+    If the command has ``git -C <dir>``, uses that dir.
+    Otherwise uses *cwd*.
+    """
+    work_dir = cwd or None
+    try:
+        tokens = shlex.split(command)
+    except ValueError:
+        tokens = []
+    # Extract -C <dir> if present
+    for i, tok in enumerate(tokens):
+        if tok == "-C" and i + 1 < len(tokens):
+            work_dir = tokens[i + 1]
+            break
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True,
+            text=True,
+            cwd=work_dir,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
+def _check_git_c_cwd(command: str, cwd: str) -> bool:
+    """Auto-allow ``git -C <dir> <safe_cmd>`` when dir == cwd.
+
+    Handles chained commands (&&, ||, ;) by checking each
+    segment independently. All segments must be safe git
+    commands for the overall command to be allowed.
+    """
+    if not cwd:
+        return False
+    try:
+        tokens = shlex.split(command)
+    except ValueError:
+        return False
+
+    real_cwd = os.path.realpath(cwd)
+    segments: list[list[str]] = []
+    current: list[str] = []
+    for tok in tokens:
+        if tok in ("&&", "||", ";"):
+            if current:
+                segments.append(current)
+            current = []
+        else:
+            current.append(tok)
+    if current:
+        segments.append(current)
+
+    if not segments:
+        return False
+
+    for seg in segments:
+        if len(seg) < 4:
+            return False
+        if seg[0] != "git" or seg[1] != "-C":
+            return False
+        if os.path.realpath(seg[2]) != real_cwd:
+            return False
+        if seg[3] not in GIT_SAFE_SUBCOMMANDS:
+            return False
+
+    return True
+
+
 def main() -> None:
+    if os.environ.get("SKIP_CLAUDE_HOOKS") == "1":
+        return
+
     try:
         payload = json.load(sys.stdin)
     except (json.JSONDecodeError, EOFError):
@@ -177,6 +299,7 @@ def main() -> None:
 
     tool_input = payload.get("tool_input", {})
     command = tool_input.get("command", "")
+    cwd = payload.get("cwd", "")
 
     # 1. Auto-grant python heredocs
     if HEREDOC_PATTERN.match(command.strip()):
@@ -196,7 +319,23 @@ def main() -> None:
             log(payload, f"deny:push-to-{branch}")
             return
 
-    # 3. Everything else: passthrough
+    # 3. Guard git commit on protected branches
+    if GIT_COMMIT_PATTERN.search(command):
+        branch = _current_branch(command, cwd)
+        if branch and PROTECTED_BRANCH_RE.match(branch):
+            log(payload, f"passthrough:commit-on-{branch}")
+            return  # ask the user
+        _emit("allow")
+        log(payload, "allow:commit")
+        return
+
+    # 4. Auto-allow git -C <cwd> <safe_subcommand>
+    if _check_git_c_cwd(command, cwd):
+        _emit("allow")
+        log(payload, "allow:git-c-cwd")
+        return
+
+    # 5. Everything else: passthrough
     log(payload, "passthrough")
 
 

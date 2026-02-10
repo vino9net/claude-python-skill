@@ -8,6 +8,7 @@ ruff is never actually executed.
 import importlib.util
 import io
 import json
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -159,6 +160,29 @@ class TestInvalidInput(unittest.TestCase):
     def test_missing_file_path(self, mock_run):
         _run_main(json.dumps({"tool_input": {}}))
         mock_run.assert_not_called()
+
+
+class TestSkipClaudeHooks(unittest.TestCase):
+    """SKIP_CLAUDE_HOOKS=1 should bypass all hook logic."""
+
+    @patch("format_on_save.subprocess.run")
+    @patch("format_on_save.shutil.which", return_value="/usr/bin/ruff")
+    def test_py_file_skipped_when_env_set(self, mock_which, mock_run):
+        with patch.dict("os.environ", {"SKIP_CLAUDE_HOOKS": "1"}):
+            _run_main(_make_payload("/tmp/project/app.py"))
+        mock_which.assert_not_called()
+        mock_run.assert_not_called()
+
+    @patch("format_on_save.subprocess.run")
+    @patch("format_on_save.shutil.which", return_value="/usr/bin/ruff")
+    def test_not_skipped_when_env_unset(self, _mock_which, mock_run):
+        mock_run.return_value = MagicMock(returncode=0)
+        with patch.dict("os.environ", {}, clear=False):
+            env = dict(**os.environ)
+            env.pop("SKIP_CLAUDE_HOOKS", None)
+            with patch.dict("os.environ", env, clear=True):
+                _run_main(_make_payload("/tmp/project/app.py"))
+        mock_run.assert_called_once()
 
 
 class TestLogging(unittest.TestCase):
