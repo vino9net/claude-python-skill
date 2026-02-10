@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 
 """PermissionRequest hook: auto-grant python heredocs, block pushes to protected branches.
 
@@ -23,13 +22,15 @@ Decision flow:
     otherwise                                → passthrough
 """
 
+from __future__ import annotations
+
 import json
 import os
 import re
 import shlex
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 HEREDOC_PATTERN = re.compile(r"^(uv run )?(python3?)\s+<<<")
 GIT_PUSH_PATTERN = re.compile(r"\bgit\b.*\bpush\b")
@@ -109,7 +110,7 @@ def log(payload: dict, decision: str) -> None:
     if not log_file:
         return
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     entry = {
         "timestamp": timestamp,
         "hook": "permission_guard",
@@ -179,9 +180,7 @@ def _resolve_push_branch(command: str) -> str | None:
         if tok in GIT_PUSH_FLAGS_WITH_VALUE:
             k += 2  # skip flag + its value
             continue
-        if tok in GIT_PUSH_FLAGS_STANDALONE or (
-            tok.startswith("-") and "=" in tok
-        ):
+        if tok in GIT_PUSH_FLAGS_STANDALONE or (tok.startswith("-") and "=" in tok):
             k += 1
             continue
         # Stop at shell operators

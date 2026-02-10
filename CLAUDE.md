@@ -73,11 +73,6 @@ python3 -m unittest skills/scaffold/tests/test_permission_guard.py -v
 python3 -m unittest discover -s skills/scaffold/tests -p 'test_*.py' -v
 ```
 
-### Pytest (`/py:pytest`)
-- Runs `pytest -v --durations=5 --timeout=180` in an isolated subagent
-- Reports pass/fail summary, slowest tests, and failure details
-- Use before commits or after completing a feature
-
 ## Key Conventions
 
 - Package manager: `uv` (no setup.py, no requirements.txt)

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 
 """PostToolUse hook: auto-format Python files after edit/write.
 
@@ -7,12 +6,14 @@ Runs `ruff format` on any .py file that was edited or created by Claude,
 preventing style drift and reducing pre-commit formatting overhead.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 
 def _resolve_log_path() -> str | None:
@@ -32,7 +33,7 @@ def log(payload: dict, decision: str) -> None:
     if not log_file:
         return
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     entry = {
         "timestamp": timestamp,
         "hook": "format_on_save",
