@@ -29,11 +29,27 @@ ty = ">=0.0.14"
 pre-commit = ">=4.0,<5"
 ```
 
-## API Component
+## API Component — FastAPI
 
 ```
 fastapi = ">=0.115,<1"
 uvicorn = {version = ">=0.32,<1", extras = ["standard"]}
+pydantic-settings = ">=2.7,<3",
+structlog = ">=24.4,<26",
+```
+
+## API Component — Flask
+
+```
+flask = ">=3.1,<4"
+pydantic-settings = ">=2.7,<3",
+structlog = ">=24.4,<26",
+```
+
+## API Component — Django
+
+```
+django = ">=5.2,<6"
 pydantic-settings = ">=2.7,<3",
 structlog = ">=24.4,<26",
 ```

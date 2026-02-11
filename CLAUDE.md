@@ -23,7 +23,8 @@ This is a Claude Code plugin providing three skills:
 │   │   ├── SKILL.md             # /py:scaffold — project scaffolding
 │   │   ├── assets/
 │   │   │   ├── snippets/        # Code templates for each component
-│   │   │   │   ├── api.py       # FastAPI component patterns
+│   │   │   │   ├── fastapi.py   # FastAPI component patterns
+│   │   │   │   ├── flask.py     # Flask component patterns
 │   │   │   │   └── cli.py       # Typer CLI component patterns
 │   │   │   └── templates/       # Files copied into scaffolded projects
 │   │   │       ├── pyproject.toml   # → pyproject.toml (with tool configs)
@@ -35,7 +36,8 @@ This is a Claude Code plugin providing three skills:
 │   │   │       ├── settings.json        # → .claude/settings.json
 │   │   │       ├── init_remote_env.sh   # → .claude/scripts/init_remote_env.sh
 │   │   │       ├── permission_guard.py  # → .claude/scripts/permission_guard.py
-│   │   │       └── format_on_save.py     # → .claude/scripts/format_on_save.py
+│   │   │       ├── format_on_save.py     # → .claude/scripts/format_on_save.py
+│   │   │       └── run_dev.sh            # → t (dev server launcher)
 │   │   └── references/
 │   │       └── dependencies.md  # Approved package version master list
 │   ├── quality/SKILL.md         # Auto-invoked quality standards

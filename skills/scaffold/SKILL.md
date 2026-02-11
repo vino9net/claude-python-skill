@@ -4,7 +4,7 @@ description: >
   Scaffold new Python projects or add components to existing ones.
   Triggers: "new python project", "scaffold", "add API/CLI to project", "init project",
   "create project skeleton", "update project dependencies". Also use when asked to add
-  FastAPI or other components to an existing Python project.
+  FastAPI, Flask, Django, or other components to an existing Python project.
 allowed-tools: Bash(uv*), Read, Grep, Edit
 ---
 
@@ -14,7 +14,7 @@ allowed-tools: Bash(uv*), Read, Grep, Edit
 
 1. Read this file for workflow and conventions
 2. **Do NOT search for files** — read template and snippet files directly by their exact paths listed below
-3. For components: read `assets/snippets/api.py` or `assets/snippets/cli.py` directly
+3. For components: read `assets/snippets/fastapi.py`, `assets/snippets/flask.py`, or `assets/snippets/cli.py` directly
 4. For dependencies: read `references/dependencies.md` directly
 5. For pyproject.toml reference: read `assets/templates/pyproject.toml` directly
 
@@ -32,18 +32,31 @@ Components needed: [api, cli] — present as checklist, explain briefly
 Include deptry? (yes/no, default: yes) — dependency checker that finds unused/missing deps
 ```
 
+### Round 1b — API Framework (only if api component selected)
+
+If the user picks the **api** component, immediately follow up:
+
+```
+API framework: FastAPI (recommended) / Flask / Django
+```
+
+- **FastAPI** — async, auto-generated OpenAPI docs, best for new APIs
+- **Flask** — lightweight, synchronous, large ecosystem
+- **Django** — batteries-included; scaffold provides deps + dev script only (no code generation — user runs `django-admin startproject` themselves)
+
 ### After interview
 
 Summarize the choices back to the user in a short table and ask for confirmation before
 generating any files. Example:
 
 ```
-Project:      fund_parser
-Type:         Library (pip installable with extras)
-Components:   api, cli
-Deptry:       yes
-API extras:   CORS enabled, no auth
-Distribution: pip install fund_parser[api]
+Project:       fund_parser
+Type:          Library (pip installable with extras)
+Components:    api, cli
+API Framework: FastAPI
+Deptry:        yes
+API extras:    CORS enabled, no auth
+Distribution:  pip install fund_parser[api]
 
 Proceed? (y/n)
 ```
@@ -67,6 +80,7 @@ Only after confirmation: read the relevant snippet files and generate the projec
 ├── pyproject.toml
 ├── README.md
 ├── CLAUDE.md
+├── t                           # dev server launcher (api component only)
 ├── .python-version
 ├── .pre-commit-config.yaml
 ├── .gitignore
@@ -106,8 +120,9 @@ Only after confirmation: read the relevant snippet files and generate the projec
 | `assets/templates/init_remote_env.sh`            | `.claude/scripts/init_remote_env.sh`   | None (make executable)                                 |
 | `assets/templates/permission_guard.py`       | `.claude/scripts/permission_guard.py` | None (make executable)                              |
 | `assets/templates/format_on_save.py`             | `.claude/scripts/format_on_save.py`    | None (make executable)                                 |
+| `assets/templates/run_dev.sh`                    | `t`                                    | `{dev_server_command}`, `{project_name}` (make executable, api component only) |
 
-After copying scripts, run `chmod +x` on the `.sh` and `.py` files in `.claude/scripts/`.
+After copying scripts, run `chmod +x` on the `.sh` and `.py` files in `.claude/scripts/` and on `t` if generated.
 
 ## Optional: deptry
 
@@ -130,6 +145,12 @@ uv sync
 uv run pre-commit install
 ```
 
+If the project includes an api component, also mention:
+
+```
+./t              # start the dev server
+```
+
 ## Component System
 
 When the user requests a component, follow these steps:
@@ -143,10 +164,39 @@ When the user requests a component, follow these steps:
 
 **Read these snippet files directly by path when the component is requested:**
 
-| Component | Read This File              | Creates                          |
-|-----------|-----------------------------|----------------------------------|
-| api       | `assets/snippets/api.py`    | api/, main.py, conftest fixtures |
-| cli       | `assets/snippets/cli.py`    | cli.py, pyproject scripts        |
+| Component       | Read This File                | Creates                          |
+|-----------------|-------------------------------|----------------------------------|
+| api (FastAPI)   | `assets/snippets/fastapi.py`  | api/, main.py, conftest fixtures |
+| api (Flask)     | `assets/snippets/flask.py`    | api/, main.py, conftest fixtures |
+| api (Django)    | *(no snippet — see below)*    | deps + dev script only           |
+| cli             | `assets/snippets/cli.py`      | cli.py, pyproject scripts        |
+
+### Django Special Case
+
+When the user selects Django as the API framework, **do not generate application code**.
+Instead:
+
+1. Add Django dependencies from `references/dependencies.md` to `pyproject.toml`
+2. Generate the `t` dev server script with the Django command
+3. Print instructions telling the user to run:
+   ```
+   cd {project_name}
+   uv sync
+   uv run django-admin startproject config .
+   ```
+4. Explain that Django manages its own project structure (`manage.py`, `config/`, etc.)
+
+### Dev Server Script
+
+When the **api** component is selected (any framework), generate a `t` script in the
+project root from `assets/templates/run_dev.sh`. Replace `{dev_server_command}` with the
+appropriate command and `{project_name}` with the project name. Make it executable.
+
+| Framework | `{dev_server_command}` |
+|-----------|----------------------|
+| FastAPI   | `uv run uvicorn {project_name}.main:app --port 8000 --reload --reload-dir src` |
+| Flask     | `uv run flask --app src/{project_name}/main run --port 8000 --reload` |
+| Django    | `uv run python manage.py runserver 8000` |
 
 ### Adding to Existing Projects
 
