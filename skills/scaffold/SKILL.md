@@ -29,6 +29,7 @@ Do not ask all questions at once — group them into 2 rounds maximum.
 Project name: {ask user, suggest snake_case}
 One-line description: {ask user}
 Components needed: [api, cli] — present as checklist, explain briefly
+Include deptry? (yes/no, default: yes) — dependency checker that finds unused/missing deps
 ```
 
 ### After interview
@@ -40,6 +41,7 @@ generating any files. Example:
 Project:      fund_parser
 Type:         Library (pip installable with extras)
 Components:   api, cli
+Deptry:       yes
 API extras:   CORS enabled, no auth
 Distribution: pip install fund_parser[api]
 
@@ -53,7 +55,7 @@ Only after confirmation: read the relevant snippet files and generate the projec
 - **Package manager**: `uv` (pyproject.toml based, no setup.py, no requirements.txt). Never ask the user which package manager to use — always use `uv`.
 - **Layout**: src layout — `src/{project_name}/`
 - **Tests**: `tests/` mirroring src structure, pytest
-- **Linting**: ruff (lint + format), ty for type checking, deptry for dependency checks
+- **Linting**: ruff (lint + format), ty for type checking, deptry for dependency checks (optional)
 - **Pre-commit**: always include `.pre-commit-config.yaml`
 - **Python version**: 3.13+ unless user specifies otherwise
 - **Docstrings**: Google style
@@ -82,12 +84,10 @@ Only after confirmation: read the relevant snippet files and generate the projec
 ├── src/
 │   └── {project_name}/
 │       ├── __init__.py
-│       ├── py.typed          # PEP 561 marker
-│       └── config.py         # pydantic-settings based
+│       └── py.typed          # PEP 561 marker
 └── tests/
     ├── __init__.py
-    ├── conftest.py
-    └── test_config.py
+    └── conftest.py
 ```
 
 ## Scaffold Templates
@@ -96,10 +96,10 @@ Only after confirmation: read the relevant snippet files and generate the projec
 
 | Template File (read from)                        | Target Location                        | Replacements                                           |
 |--------------------------------------------------|----------------------------------------|--------------------------------------------------------|
-| `assets/templates/pyproject.toml`                | `pyproject.toml`                       | `{project_name}`, `{description}`, `{python_version}`  |
-| `assets/templates/CLAUDE.md`                     | `CLAUDE.md`                            | `{project_name}`, `{description}`                      |
+| `assets/templates/pyproject.toml`                | `pyproject.toml`                       | `{project_name}`, `{description}`, `{python_version}`, remove deptry if declined |
+| `assets/templates/CLAUDE.md`                     | `CLAUDE.md`                            | `{project_name}`, `{description}`, remove deptry if declined |
 | `assets/templates/.gitignore`                    | `.gitignore`                           | None                                                   |
-| `assets/templates/.pre-commit-config.yaml`       | `.pre-commit-config.yaml`              | None                                                   |
+| `assets/templates/.pre-commit-config.yaml`       | `.pre-commit-config.yaml`              | Remove deptry hook if declined                         |
 | `assets/templates/vscode-settings.json`          | `.vscode/settings.json`                | None                                                   |
 | `assets/templates/python_build.yml`              | `.github/workflows/python_build.yml`   | None                                                   |
 | `assets/templates/settings.json`                 | `.claude/settings.json`                | None                                                   |
@@ -108,6 +108,17 @@ Only after confirmation: read the relevant snippet files and generate the projec
 | `assets/templates/format_on_save.py`             | `.claude/scripts/format_on_save.py`    | None (make executable)                                 |
 
 After copying scripts, run `chmod +x` on the `.sh` and `.py` files in `.claude/scripts/`.
+
+## Optional: deptry
+
+If the user declines deptry during the interview, omit all deptry-related entries when
+generating files:
+
+- **pyproject.toml**: Remove `"deptry>=0.24.0"` from `[dependency-groups] dev`
+- **.pre-commit-config.yaml**: Remove the entire `deptry` hook block (id, name, entry,
+  language, always_run, pass_filenames)
+- **CLAUDE.md**: Remove step `4. deptry .` from the Quality Gates list and renumber the
+  remaining steps
 
 ## Post-Scaffold Instructions
 

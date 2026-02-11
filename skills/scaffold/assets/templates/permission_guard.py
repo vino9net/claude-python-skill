@@ -30,7 +30,7 @@ import re
 import shlex
 import subprocess
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 HEREDOC_PATTERN = re.compile(r"^(uv run )?(python3?)\s+<<<")
 GIT_PUSH_PATTERN = re.compile(r"\bgit\b.*\bpush\b")
@@ -110,7 +110,7 @@ def log(payload: dict, decision: str) -> None:
     if not log_file:
         return
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    timestamp = datetime.now(UTC).isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
     entry = {
         "timestamp": timestamp,
         "hook": "permission_guard",
