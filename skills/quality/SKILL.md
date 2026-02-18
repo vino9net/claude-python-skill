@@ -28,7 +28,10 @@ Do NOT write lines over 88 characters and rely on the formatter to fix them.
 
 - PEP8 conventions
 - Google-style docstrings
-- Keep imports at the top of the file
+
+**All imports MUST be at the top of the file. Do NOT use inline or local imports inside functions/methods.** The only exceptions are:
+- Breaking a circular import that cannot be resolved by restructuring
+- Optional dependencies guarded by a try/except `ImportError`
 
 ## Type Annotations (Python 3.10+)
 
