@@ -131,8 +131,11 @@ When preparing to commit, run these checks in order. Only commit if ALL pass.
 
 ## Package Management with uv
 
+This project uses **uv** as its package manager. Always use `uv` to install or remove packages. **Never use `pip install` or `pip uninstall`** — they bypass the lockfile and can corrupt the environment.
+
 ```bash
 uv add <package>       # add a dependency
+uv remove <package>    # remove a dependency
 uv sync                # sync lockfile to environment
 uv run <command>       # run inside the virtual environment
 uv run pytest          # example: run tests
