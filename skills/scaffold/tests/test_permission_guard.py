@@ -75,6 +75,22 @@ class TestHeredocAllow(unittest.TestCase):
         r = _run_hook(_make_payload("uv run python3 <<< 'import sys'"))
         self.assertEqual(_parse_decision(r.stdout)["behavior"], "allow")
 
+    def test_python_heredoc_double_angle(self):
+        r = _run_hook(_make_payload("python << 'EOF'\nprint(1)\nEOF"))
+        self.assertEqual(_parse_decision(r.stdout)["behavior"], "allow")
+
+    def test_python3_heredoc_double_angle(self):
+        r = _run_hook(_make_payload("python3 << 'PYEOF'\nprint(1)\nPYEOF"))
+        self.assertEqual(_parse_decision(r.stdout)["behavior"], "allow")
+
+    def test_uv_run_python3_heredoc_double_angle(self):
+        r = _run_hook(_make_payload("uv run python3 << 'EOF'\nimport sys\nEOF"))
+        self.assertEqual(_parse_decision(r.stdout)["behavior"], "allow")
+
+    def test_python3_heredoc_double_angle_leading_spaces(self):
+        r = _run_hook(_make_payload("   python3 << 'PYEOF'\nprint(1)\nPYEOF"))
+        self.assertEqual(_parse_decision(r.stdout)["behavior"], "allow")
+
     def test_fixture_heredoc(self):
         r = _run_hook(_load_fixture("heredoc_allow.json"))
         self.assertEqual(_parse_decision(r.stdout)["behavior"], "allow")

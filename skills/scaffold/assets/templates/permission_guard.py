@@ -32,7 +32,8 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-HEREDOC_PATTERN = re.compile(r"^(uv run )?(python3?)\s+<<<")
+HEREDOC_PATTERN = re.compile(r"^(uv run )?(python3?)\s+<<<?")
+
 GIT_PUSH_PATTERN = re.compile(r"\bgit\b.*\bpush\b")
 PROTECTED_BRANCH_RE = re.compile(r"^(main|master)$")
 
