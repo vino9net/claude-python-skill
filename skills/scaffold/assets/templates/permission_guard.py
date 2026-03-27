@@ -33,6 +33,7 @@ import sys
 from datetime import datetime, timezone
 
 HEREDOC_PATTERN = re.compile(r"^(uv run )?(python3?)\s+<<<?")
+PYTHON_INLINE_PATTERN = re.compile(r"^(uv run )?(python3?)\s+-c\s+")
 
 GIT_PUSH_PATTERN = re.compile(r"\bgit\b.*\bpush\b")
 PROTECTED_BRANCH_RE = re.compile(r"^(main|master)$")
@@ -301,8 +302,9 @@ def main() -> None:
     command = tool_input.get("command", "")
     cwd = payload.get("cwd", "")
 
-    # 1. Auto-grant python heredocs
-    if HEREDOC_PATTERN.match(command.strip()):
+    # 1. Auto-grant python heredocs and inline scripts
+    stripped = command.strip()
+    if HEREDOC_PATTERN.match(stripped) or PYTHON_INLINE_PATTERN.match(stripped):
         _emit("allow")
         log(payload, "allow")
         return
