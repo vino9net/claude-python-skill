@@ -58,11 +58,14 @@ import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import bashlex
+
+GIT_BIN = shutil.which("git") or "git"
 
 # ---------------------------------------------------------------------------
 # Safe command patterns (regex matched against command text from first word)
@@ -224,7 +227,7 @@ def log(payload: dict, decision: str) -> None:
     if not log_file:
         return
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     entry = {
         "timestamp": timestamp,
         "hook": "permission_guard",
@@ -250,23 +253,33 @@ def _emit(behavior: str, message: str = "") -> None:
     )
 
 
-def _resolve_push_branch(command: str) -> str | None:
-    """Parse a git push command and return the target branch name."""
+def _git_current_branch(cwd: str | None) -> str | None:
+    """Return the current git branch via ``git rev-parse``."""
     try:
-        tokens = shlex.split(command)
+        # All argv entries are static constants; only `cwd` is variable
+        # and is not interpreted by a shell. Safe by construction.
+        result = subprocess.run(  # noqa: S603
+            [GIT_BIN, "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True,
+            text=True,
+            cwd=cwd,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
+def _find_git_push(tokens: list[str]) -> tuple[int, str | None] | None:
+    """Locate ``push`` after ``git``, returning (push_idx, cwd-from-``-C``)."""
+    try:
+        git_idx = tokens.index("git")
     except ValueError:
         return None
 
-    git_idx = None
-    for i, tok in enumerate(tokens):
-        if tok == "git":
-            git_idx = i
-            break
-    if git_idx is None:
-        return None
-
-    cwd = None
-    push_idx = None
+    cwd: str | None = None
     j = git_idx + 1
     while j < len(tokens):
         if tokens[j] == "-C" and j + 1 < len(tokens):
@@ -274,13 +287,13 @@ def _resolve_push_branch(command: str) -> str | None:
             j += 2
             continue
         if tokens[j] == "push":
-            push_idx = j
-            break
+            return j, cwd
         j += 1
+    return None
 
-    if push_idx is None:
-        return None
 
+def _parse_push_positionals(tokens: list[str], push_idx: int) -> list[str]:
+    """Return positional arguments after ``git push``, skipping flags."""
     positional: list[str] = []
     k = push_idx + 1
     while k < len(tokens):
@@ -295,27 +308,29 @@ def _resolve_push_branch(command: str) -> str | None:
             break
         positional.append(tok)
         k += 1
+    return positional
 
+
+def _resolve_push_branch(command: str) -> str | None:
+    """Parse a git push command and return the target branch name."""
+    try:
+        tokens = shlex.split(command)
+    except ValueError:
+        return None
+
+    found = _find_git_push(tokens)
+    if found is None:
+        return None
+    push_idx, cwd = found
+
+    positional = _parse_push_positionals(tokens, push_idx)
     if len(positional) >= 2:
         refspec = positional[1]
         if ":" in refspec:
             return refspec.rsplit(":", 1)[1]
         return refspec
 
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            capture_output=True,
-            text=True,
-            cwd=cwd,
-            timeout=5,
-        )
-        if result.returncode == 0:
-            return result.stdout.strip()
-    except (OSError, subprocess.TimeoutExpired):
-        pass
-
-    return None
+    return _git_current_branch(cwd)
 
 
 def _current_branch(command: str, cwd: str) -> str | None:
@@ -329,19 +344,7 @@ def _current_branch(command: str, cwd: str) -> str | None:
         if tok == "-C" and i + 1 < len(tokens):
             work_dir = tokens[i + 1]
             break
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            capture_output=True,
-            text=True,
-            cwd=work_dir,
-            timeout=5,
-        )
-        if result.returncode == 0:
-            return result.stdout.strip()
-    except (OSError, subprocess.TimeoutExpired):
-        pass
-    return None
+    return _git_current_branch(work_dir)
 
 
 # ---------------------------------------------------------------------------
