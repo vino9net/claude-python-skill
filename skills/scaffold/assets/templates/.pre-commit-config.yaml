@@ -11,12 +11,17 @@ repos:
       #   args: ["--print-changes"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.7
+    rev: v0.15.21
     hooks:
       - id: ruff-check
         args: [--fix]
 
       - id: ruff-format
+
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.59
+    hooks:
+      - id: ty
 
   - repo: local
     hooks:
@@ -26,10 +31,3 @@ repos:
         language: system
         always_run: true
         pass_filenames: false
-
-      - id: ty
-        name: ty check
-        entry: bash -c 'uv run ty check '
-        language: system
-        pass_filenames: false
-        always_run: true
